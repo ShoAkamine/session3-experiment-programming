@@ -1,4 +1,5 @@
 from psychopy import core, visual, sound, event
+import datetime as dt
 
 class Experiment:
     def __init__(self, window_size, text_color, background_color):
@@ -13,25 +14,25 @@ class Experiment:
         core.wait(time)
 
 class Item:
-    def __init__(self, experiment, name, text, audio_path):
+    def __init__(self, experiment, name, cond, text, audio_path):
         self.experiment = experiment
         self.name = name
+        self.cond = cond
         self.text = visual.TextStim(experiment.window, text=text, color=experiment.text_color)
         self.audio = sound.Sound(audio_path)
 
 class Trial:
-    def __init__(self, experiment, name, stimulus, message, fixation_time=0.5, max_key_wait=5, keys=['z', 'm']):
+    def __init__(self, experiment, name, stimulus, message, cond, fixation_time=0.5, max_key_wait=5, keys=['z', 'm']):
         self.name = name
         self.experiment = experiment
         self.stimulus = stimulus
         self.message = message
+        self.cond = cond
         self.fixation_time = fixation_time
         self.max_key_wait = max_key_wait
         self.keys = keys
     
     def run(self):
-        self.experiment.window.flip()   #refresh the screen
-        
         self.stimulus.play()
         core.wait(1)
 
@@ -48,8 +49,11 @@ class Trial:
             key = None
             end_time = self.experiment.clock.getTime()
         
+        self.experiment.window.flip()   #refresh the screen
+
         return {
             'trial': self.name,
+            'cond': self.cond,
             'start_time': start_time,
             'end_time': end_time,
             'key': key

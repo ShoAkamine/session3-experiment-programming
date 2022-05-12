@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 
+id = 'P_' + dt.datetime.now().strftime("%H%M%S")
+
 #                        window size, text color,  background color
 experiment = Experiment((800, 600), (-1, -1, -1), (1, 1, 1))
 
@@ -18,19 +20,20 @@ stimuli_reduced = pd.concat([stimuli_lf, stimuli_hf, stimuli_nw])
 
 items = []
 for index, stimulus in stimuli_reduced.iterrows():
-    if stimulus['freq_category'] == 'none':
+    cond = stimulus['freq_category']
+    word = stimulus['word']
+    if cond == 'none':
         folder_name = 'NW'
     else:
         folder_name = stimulus['freq_category']
-    word = stimulus['word']
     audio_path = f"sounds/{folder_name}/{word}.wav"
-    #            Item(experiment, name, text,                        audio_path)
-    items.append(Item(experiment, word, "Word (z) or non-word (m)?", audio_path))
+    #            Item(experiment, name, cond, text,                        audio_path)
+    items.append(Item(experiment, word, cond, "Word (z) or non-word (m)?", audio_path))
 
 trials = []
 for item in items:
-    #                   experiment, name,                 stimulus, message,    fixation_time=0.5, max_key_wait=5, keys=['z', 'm']
-    trials.append(Trial(experiment, item.name, item.audio, item.text))
+    #                   experiment, name,      stimulus,   message,  cond,      fixation_time=0.5, max_key_wait=5, keys=['z', 'm']
+    trials.append(Trial(experiment, item.name, item.audio, item.text, item.cond))
 
 trials = np.random.permutation(trials)
 results = []
@@ -38,6 +41,6 @@ for trial in trials:
     results.append(trial.run())
 
 results = pd.DataFrame(results)
+results['id'] = id
 results['reaction_time'] = results['end_time'] - results['start_time']
-now = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
-results.to_csv(f'demo_output_{now}.csv')
+results.to_csv(f'{id}.csv')
