@@ -1,5 +1,4 @@
 from psychopy import core, visual, sound, event
-import datetime as dt
 
 class Experiment:
     def __init__(self, window_size, text_color, background_color):
